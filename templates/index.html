@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+    <head> 
+	  <link rel="stylesheet" type="text/css" href="{{ static_url("style/basic.css") }}"> 
+
+	   <meta charset="utf-8">
+		<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
+		<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+		<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+		<script>
+			$(function() {
+			{% autoescape None %}
+			var list = {{ disp_words }}
+			$( "#tags" ).autocomplete({
+				source: list,
+				minLength: 2
+			});
+		});
+	   </script>
+
+      <title> Biclusterização </title>
+    </head>
+
+	<body><center>
+		<h3> ESCOLHA UMA PALAVRA DA BASE DE DADOS </h3>	
+		<p><i> Se a palavra não existir na base de dados, uma lista é exibida com as opções possíveis! </i><p>	
+
+		<form method="post" action="/bicselection">
+			<p> Palavra:<br><input type="text" name="word" id="tags"></p>
+			<input type="submit" value="Confirmar Escolha">		
+		</form>  
+		</center>	
+
+    </body>    
+
+</html>

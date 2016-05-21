@@ -1,0 +1,87 @@
+<link rel="stylesheet" href="http://cdn.pydata.org/bokeh-0.7.0.min.css"></link>
+<script type="text/javascript" src="http://cdn.pydata.org/bokeh-0.7.0.min.js"></script>
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+
+<script type="text/javascript" src="http://cdn.pydata.org/bokeh/release/bokeh-0.8.1.min.js"></script>
+<link rel="stylesheet" href="http://cdn.pydata.org/bokeh/release/bokeh-0.8.1.min.css"></link>
+
+
+		<div class="co-groups">
+
+			<h3> Co-grupos Disponíveis </h3>
+			{% set c = 1 %}
+			{% for div in div_tags %}
+				{% if c % 2 != 0 %}
+					<div class = "left-col">
+						{% raw div[1] %}
+						<button name = "subject" type="submit" value="{{ div[0] }}">Selecionar o bicluster {{c}}</button>
+					</div>
+				{% else %}
+					<div class = "right-col">
+						{% raw div[1] %}
+						<button name = "subject" type="submit" value="{{ div[0] }}">Selecionar o bicluster {{c}}</button>
+					</div>
+				{% end %}
+				{% set c = c + 1 %}	
+			{% end %}
+
+		</div>
+
+
+	<center>
+		<div class="co-groups">
+			{% set c = 1 %}
+			<h3> Co-grupos Disponíveis </h3>
+				{% for div in div_tags %}
+					{% raw div[1] %}
+					<button name = "subject" type="submit" value="{{ div[0] }}">Selecionar o bicluster {{c}}</button>
+					{% set c = c + 1 %}	
+			{% end %}
+
+		</div>
+		</center>
+
+<center>
+
+
+			<h3> Tabela de co-grupos que possuem o atributo {{ w }}  </h3>			
+			{% raw t_div %}
+
+		</center>
+
+
+
+------------
+
+{% raw t_script %}
+		{% for script in script_tags %}
+			<p>{% raw script %}</p>
+		{% end %}
+
+	<link rel="stylesheet" href="http://cdn.pydata.org/bokeh-0.7.0.min.css"></link>
+	<script type="text/javascript" src="http://cdn.pydata.org/bokeh-0.7.0.min.js"></script>	
+					{% raw div_tags[c-1] %}
+
+-----------
+
+	word = self.get_argument('word')
+		bics = open(path+arch)
+		l = self.get_list()
+		dic = defaultdict(list)
+		dic_name = defaultdict(list)
+		i = 1
+
+		for l in bics:
+			bic = json.loads(l)
+			if word in bic['feats']:
+				dic['bics'].append(bic)
+				dic_name['bics'].append('Co-Grupo ' + str(i))
+				i += 1
+		
+		# Data Table 
+		df = pd.DataFrame(dict(dic_name), index = [i for i in range(1, len(dic['bics'])+1)]) # pandas dataframe
+		source = ColumnDataSource(df)
+		columns = [
+			TableColumn(field="bics", title="Co-Grupos", editor=SelectEditor(options=dic_name['bics']))
+		]
+		data_table = DataTable(source=source, columns=columns, selectable='checkbox', width=250)

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+    <head> 
+	  <link rel="stylesheet" type="text/css" href="{{ static_url("style/basic.css") }}"> 
+      <title> Biclusterização </title>
+    </head>
+	<script type="text/javascript">
+		var listwords = [];
+		for (i = 0; i < l.length; i++) {
+    		listwords += l[i];
+		}
+		$( "#wordInput" ).autocomplete({
+			source: listwords
+		});
+	</script>
+	<body><center>
+		<h3> ESCOLHA UMA PALAVRA DA BASE DE DADOS (p.ex: ignoring, orion, raining) </h3>	
+		<p><i> Se a palavra não existir na base de dados, uma lista é exibida com as opções possíveis </i><p>
+		<form method="post" action="/bicselection">
+			<p> Palavra:<br><input type="text" name="word"></p>
+			<input type="submit" value="Confirmar Escolha">
+			   <label for="wordInput"> Select Word: </label>
+    		   <input id="wordInput" />
+		</form>  
+		</center>
+    </body>    
+</html>

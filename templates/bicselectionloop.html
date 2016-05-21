@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+
+	<head> 
+	<link rel="stylesheet" type="text/css" href="{{ static_url("style/basic.css") }}"> 
+
+		<script type="text/javascript">
+		function showSpoiler(obj)
+    		{
+    		var inner = obj.parentNode.getElementsByTagName("div")[0];
+    		if (inner.style.display == "none")
+        		inner.style.display = "";
+    		else
+        		inner.style.display = "none";
+    		}
+    	</script>
+
+		<center><title> Seleção de Biclusters </title></center>
+
+	</head>
+
+	<body>		
+
+		<form method="post" action="/relations">
+
+		<center><h1> Seleção de Biclusters </h1></center>
+		<center><p><i> Clique nos botões de expansão para visualizar os biclusters obtidos. Selecione um destes para verificar suas relações </i></p></center>
+		<center><p><i> Tupla selecionada: {{ tp[0] }}, {{ tp[1] }} </i></p></center>
+		{% set c = 1 %}
+		{% for line in b %}			
+			{% set bic = load(line) %}
+			{% if tp[0] in bic['objs'] and tp[1] in bic['feats'] %}
+			<p><b> Bicluster {{c}} </b></p>
+			<div class="spoiler">				
+    			<input type="button" onclick="showSpoiler(this);" value="Detalhes/Ocultar">
+				<button name="subject" type="submit" value="{{bic}}">Selecionar o bicluster {{c}}</button>
+    			<div class="inner" style="display:none;">
+					<p> Objects : {{sorted(bic['objs'])}} </p>
+					<p> Features : {{sorted(bic['feats'])}} </p>	
+    			</div>		
+			{% set c = c + 1 %}	
+			{% end %}
+		{% end %}
+		
+
+		</form>
+	</body>
+
+</html>
+
+

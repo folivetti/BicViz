@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	<link rel="stylesheet" type="text/css" href="{{ static_url("style/basic.css") }}"> 
+	<center><h1> Matriz do Bicluster </h1></center>
+	<center><p><i> As linhas representam os atributos, enquanto que as colunas representam os objetos </i><p></center>
+	</head>
+
+<body>
+{% set contcol = 1 %}
+<center><table class = "sample" border = "1" style = "width=100%">
+    <tr>
+		<th></th>
+		{% for o in bic['objs'] %}
+        	<th> {{o}} </th>
+		{% end %}
+    </tr>
+	{% for f in bic['feats'] %}
+	<tr>
+			<th> {{ f }} </th>
+		{% set controw = 1 %}
+			{% for i in range(0, nlines) %}
+				{% set tuple = (o,f) %}
+				<td align="center" valign="middle"><input type="radio" name="name" data-col="{{tuple}}" onclick="toggle(this)"></td>
+				{% set controw = controw + 1 %}
+			{% end %}
+		{% set contcol = contcol + 1 %}
+		{% end %}
+    </tr>    
+</table></center>
+</body>
+</html>

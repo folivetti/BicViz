@@ -1,0 +1,128 @@
+import os.path, json, random
+import tornado.httpserver
+import tornado.ioloop
+import tornado.options
+import tornado.web
+from collections import defaultdict
+from ast import literal_eval
+from tornado.options import define, options
+define("port", default=8000, help="run on the given port", type=int)
+
+import numpy as np
+from bokeh.plotting import figure, output_file, show
+from bokeh.models import HoverTool, ColumnDataSource
+from bokeh.sampledata.les_mis import data
+from bokeh.resources import CDN
+from bokeh.embed import components
+
+# Database
+global path
+path = os.path.join(os.path.dirname(__file__), "data")
+global arch
+arch = '/multi5.bic'
+
+
+class IndexHandler(tornado.web.RequestHandler):
+
+	def get_list(self):
+		list_words = set()
+		j = open(path+arch)
+		for l in j:
+			bic = json.loads(l)
+			for w in bic['feats']:
+				list_words.add(w)
+		return sorted(list_words)
+
+	def get(self):
+		self.render('index.html', disp_words = json.dumps(self.get_list()))
+		
+
+class BicsPageHandler(tornado.web.RequestHandler):
+
+	def get_list(self):
+		list_words = set()
+		j = open(path+arch)
+		for l in j:
+			bic = json.loads(l)
+			for w in bic['feats']:
+				list_words.add(w)
+		return list_words
+
+
+	def post(self):
+		bics = open(path+arch)
+		word = self.get_argument('word')
+		self.render('bicselection.html', w = word, b = bics, load = json.loads, l = self.get_list())
+		
+
+class RelationsPageHandler(tornado.web.RequestHandler):	
+
+	def bokeh_plot(self):
+
+		chosen_bic = literal_eval(self.get_argument('subject'))
+
+		# prep
+		n_cols = len(chosen_bic['feats'])
+		n_lines = len(chosen_bic['objs'])
+		bic_mtrx = np.ones((n_lines,n_cols))
+
+		objs = sorted(chosen_bic['objs'])
+		feats = sorted(chosen_bic['feats'])
+		
+		# bokeh
+		objlist = []
+		featlist = []
+		# colormap = ["#444444", "#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00", "#cab2d6", "#6a3d9a"]
+		color = []
+		for obj in objs:
+			for feat in feats:
+				objlist.append(obj)
+				featlist.append(feat)				
+				color.append("#669999")
+				#color.append(np.random.choice(colormap))
+	
+
+		source = ColumnDataSource(data=dict(xname=objlist, yname=featlist, colors=color, count=bic_mtrx.flatten()))
+		p = figure(title="Matriz do Co-Grupo",x_axis_location="above", tools="resize,hover,previewsave", x_range=list(objs), y_range=list(reversed(feats)), plot_width=n_lines*100, plot_height=n_cols*20, toolbar_location="left")
+		p.rect('xname', 'yname', 1, 1, source=source, color='colors', line_color="#000000")			
+		p.grid.grid_line_color = None
+		p.axis.axis_line_color = None
+		p.axis.major_tick_line_color = "#000000"
+		p.axis.major_label_text_font_size = "10pt"
+		p.axis.major_label_standoff = 0
+		p.xaxis.major_label_orientation = np.pi/2.5
+
+		hover = p.select(dict(type=HoverTool))
+		hover.tooltips = [('Tupla', '@yname, @xname')]
+		
+		# script, div tags
+		script, div = components(p, CDN)
+		
+		return (script, div)
+
+	def post(self):
+
+		chosen_bic = literal_eval(self.get_argument('subject'))
+		n_cols = len(chosen_bic['feats'])
+		n_lines = len(chosen_bic['objs'])
+		p_script, p_div = self.bokeh_plot()
+		self.render('relations.html', bic = chosen_bic, ncols = n_cols, nlines = n_lines, p_script = p_script, p_div = p_div)
+
+class BicsLoopPageHandler(tornado.web.RequestHandler):
+	
+	def post(self):
+		bics = open(path+arch)
+		tpl = self.get_argument('hid')
+		self.render('bicselectionloop.html', b = bics, load = json.loads, tp = eval(tpl))
+
+
+if __name__ == '__main__':
+	tornado.options.parse_command_line()
+	app = tornado.web.Application(handlers=[(r'/', IndexHandler), (r'/bicselection', BicsPageHandler), (r'/relations', RelationsPageHandler), (r'/bicselectionloop', BicsLoopPageHandler)], template_path=os.path.join(os.path.dirname(__file__), "templates"), static_path=os.path.join(os.path.dirname(__file__), "static"))
+	http_server = tornado.httpserver.HTTPServer(app)
+	http_server.listen(options.port)
+	tornado.ioloop.IOLoop.instance().start()
+
+
+		
+

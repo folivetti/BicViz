@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+	<head>
+
+		<meta charset="utf-8"/>
+		<link rel="stylesheet" type="text/css" href="{{ static_url("style/basic.css") }}"> 
+		<script type="text/javascript" src="http://cdn.pydata.org/bokeh/release/bokeh-0.9.0.min.js"></script>
+		<link rel="stylesheet" href="http://cdn.pydata.org/bokeh/release/bokeh-0.9.0.min.css"></link>
+		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+		
+		<script type="text/javascript">
+				function showSpoiler(obj)
+    				{
+    				var inner = obj.parentNode.getElementsByTagName("div")[0];
+    				if (inner.style.display == "none")
+        				inner.style.display = "";
+    				else
+        				inner.style.display = "none";
+    				}
+		</script>
+
+		<center><h1> Matriz do Bicluster </h1></center>
+		<center><p><i> As linhas representam os atributos, enquanto que as colunas representam os objetos </i><p></center>
+		{% raw p_script %}
+
+	</head>
+
+	<body>
+
+		{% set contcol = 1 %}
+		<form method="post" action="/bicselectionloop">
+		<center><table class = "sample" border = "1" style = "width=100%">
+    		<tr>
+				<th></th>
+				{% for o in sorted(bic['objs']) %}
+        			<th> {{o}} </th>
+				{% end %}
+   		 </tr>
+			{% for f in sorted(bic['feats']) %}
+			<tr>
+				<th> {{ f }} </th>
+				{% set controw = 1 %}
+					{% for i in range(0, nlines) %}		
+						<td align="center" valign="middle">
+						<button type="submit" name = "hid" value = "{{ sorted(bic['objs'])[i], f }}" id="matrix">
+    						<img src="{{ static_url("style/checkbox.gif")}}">
+						</button>			
+						{% set controw = controw + 1 %}
+					{% end %}
+				{% set contcol = contcol + 1 %}
+			{% end %}
+   			</tr>    
+		</table></center>
+		</form>			
+		<center><p>
+		<div class="spoiler">
+			<input type="button" onclick="showSpoiler(this);" value="Visualizar a Matriz do Bicluster com o Bokeh!">
+			<div class="inner" style="display:none;">
+				{% raw p_div %}
+			</div>
+		</p></center>
+
+
+	</body>
+
+</html>

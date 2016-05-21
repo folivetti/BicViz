@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+
+	<head> 
+	<link rel="stylesheet" type="text/css" href="{{ static_url("style/basic.css") }}"> 
+	<link rel="stylesheet" href="http://cdn.pydata.org/bokeh-0.7.0.min.css"></link>
+	<script type="text/javascript" src="http://cdn.pydata.org/bokeh-0.7.0.min.js"></script>	
+
+		<script type="text/javascript">
+		function showSpoiler(obj)
+    		{
+    		var inner = obj.parentNode.getElementsByTagName("div")[0];
+    		if (inner.style.display == "none")
+        		inner.style.display = "";
+    		else
+        		inner.style.display = "none";
+    		}
+    	</script>
+
+		{% for script in script_tags %}
+			<p>{% raw script %}</p>
+		{% end %}
+
+		{% for script in script_tables %}
+			<p> {% raw script %} </p>
+		{% end %}
+	
+		{% for script in script_tables2 %}
+			<p> {% raw script %} </p>
+		{% end %}
+
+		<center><title> Seleção de Biclusters </title></center>
+
+	</head>
+
+	<body>		
+
+		<form method="post" action="/relations">
+
+		{% if w not in l %}
+			<center><h1> PALAVRA NÃO SE ENCONTRA NA BASE DE DADOS! </h1></center>
+			{% set leng = len(l) %}
+			<p><b> Existem {{leng}} Palavras Disponíveis </b></p>
+			{% for word in l %}
+				<ul>
+				<p><li> {{ word }} </li></p>
+				</ul>
+			{% end %}
+
+		{% else %}
+
+		<center><h1> Seleção de Biclusters </h1></center>
+
+		<center><p><i> Clique nos botões de expansão para visualizar os biclusters obtidos. Selecione um destes para verificar suas relações </i></p></center>
+
+		{% set c = 1 %}
+		{% for line in b %}	
+		
+			{% set bic = load(line) %}
+
+			{% if w in bic['feats'] %}	
+
+			<center><p><h2> Bicluster {{c}} </h2></p>
+			<div class="spoiler">				
+    			<input type="button" onclick="showSpoiler(this);" value="Detalhes/Ocultar">
+				<button name="subject" type="submit" value="{{ bic }}">Selecionar o bicluster {{c}}</button>
+    			<div class="inner" style="display:none;">
+					<!--<p> Objects : {{sorted(bic['objs'])}} </p>
+					<p> Features : {{sorted(bic['feats'])}} </p>-->
+					<h3> Tabela de Atributos deste Co-grupo </h3>
+					<p>{% raw div_tables2[c-1] %}</p>
+					<h3> Tabela de Objetos deste Co-grupo </h3>
+					<p>{% raw div_tables[c-1] %}</p>
+					<p>{% raw div_tags[c-1] %}</p>				
+	   			</div>	
+			</center>
+			{% set c = c + 1 %}		
+		
+			{% end %}
+
+		{% end %}
+
+		{% end %}
+
+		</form>			
+
+	</body>
+
+</html>
